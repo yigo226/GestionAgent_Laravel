@@ -27,7 +27,7 @@ class AgentController extends Controller
     public function create()
     {
         //
-        #$services = Service::all();
+        $services = Service::all();
         return view('agents.create', compact('services'));
     }
 

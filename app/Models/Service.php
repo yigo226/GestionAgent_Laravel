@@ -18,4 +18,12 @@ class Service extends Model
     {
         return $this->hasMany(Agent::class);
     }
+
+    /**
+     * Un service possède plusieurs postes.
+     */
+    public function postes(): HasMany
+    {
+        return $this->hasMany(Poste::class);
+    }
 }
