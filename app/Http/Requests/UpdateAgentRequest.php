@@ -23,13 +23,30 @@ class UpdateAgentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
-            'matricule' => 'required|string|max:255|unique:agents,matricule,' . $this->route('agent')->id,
+
             'nom' => 'required|string|max:255',
+
             'prenom' => 'required|string|max:255',
-            'telephone' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:agents,email,' . $this->route('agent')->id,
+
+            'telephone' => 'required|string|max:20',
+
+            'email' => 'required|email|unique:agents,email',
+
+            'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+
+            'date_naissance' => 'nullable|date',
+
+            'sexe' => 'nullable|in:M,F',
+
+            'date_recrutement' => 'nullable|date',
+
+            'statut' => 'required|in:actif,inactif',
+
+            'adresse' => 'nullable|string',
+
             'service_id' => 'required|exists:services,id',
+
+            'poste_id' => 'required|exists:postes,id',
         ];
     }
 }
