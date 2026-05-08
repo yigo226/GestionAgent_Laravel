@@ -8,6 +8,9 @@ use App\Http\Requests\UpdateAgentRequest;
 use App\Models\Service;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
+use App\Models\Poste;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class AgentController extends Controller
 {
@@ -17,7 +20,9 @@ class AgentController extends Controller
     public function index()
     {
         //
-        $agents= Agent::all();
+        $agents= Agent::with(['service', 'poste'])
+                        ->latest()
+                        ->paginate(10);
         return view('agents.index', compact('agents'));
     }
 
@@ -28,7 +33,8 @@ class AgentController extends Controller
     {
         //
         $services = Service::all();
-        return view('agents.create', compact('services'));
+        $postes = Poste::all();
+        return view('agents.create', compact('services', 'postes'));
     }
 
     /**
@@ -36,17 +42,27 @@ class AgentController extends Controller
      */
     public function store(StoreAgentRequest $request)
     {
-        //
-        $agent = new Agent(); #  création d'une nouvelle instance de la classe Agent
-        $agent->matricule = $request->matricule;
-        $agent->nom = $request->nom;
-        $agent->prenom = $request->prenom;
-        $agent->telephone = $request->telephone;
-        $agent->email = $request->email;
-        $agent->service_id = $request->service_id;
-        $agent->save(); # enregistrement de l'instance dans la base de données
-        return redirect()->route('agents.index')
-                            ->with('success', 'Agent créé avec succès.');   
+        $data = $request->validated();
+
+        /*
+        Gestion des photos
+        */
+        if ($request->hasFile('image') && $request->file('image')->isValid()) {
+
+            $image = $request->file('image');
+
+            $name = time().'_'.$image->getClientOriginalName();
+
+            $image->move(public_path('photos'), $name);
+
+            $data['image'] = $name;
+        }
+
+        Agent::create($data);
+
+        return redirect()
+                ->route('agents.index')
+                ->with('success', 'Agent créé avec succès.');
     }
 
     /**
@@ -67,7 +83,9 @@ class AgentController extends Controller
         //
         #$agent = Agent::find($id);
         $services = Service::all();
-        return view('agents.edit', compact('agent', 'services'));
+        $postes = Poste::all();
+        
+        return view('agents.edit', compact('agent', 'services', 'postes'));
     }
 
     /**
@@ -75,17 +93,27 @@ class AgentController extends Controller
      */
     public function update(UpdateAgentRequest $request, Agent $agent)
     {
-        //
-        #$agent = Agent::find($id);
-        $agent->matricule = $request->matricule;
-        $agent->nom = $request->nom;
-        $agent->prenom = $request->prenom;
-        $agent->telephone = $request->telephone;
-        $agent->email = $request->email;
-        $agent->service_id = $request->service_id;
-        $agent->save(); # enregistrement de l'instance dans la base de données
-        return redirect()->route('agents.index')
-                            ->with('success', 'Agent mis à jour avec succès.');
+        $data = $request->validated();
+
+        /*
+        Gestion des photos
+        */
+        if ($request->hasFile('image') && $request->file('image')->isValid()) {
+
+            $image = $request->file('image');
+
+            $name = time().'_'.$image->getClientOriginalName();
+
+            $image->move(public_path('photos'), $name);
+
+            $data['image'] = $name;
+        }
+
+        $agent->update($data);
+
+        return redirect()
+                ->route('agents.index')
+                ->with('success', 'Agent mis à jour avec succès.');
     }
 
     /**
