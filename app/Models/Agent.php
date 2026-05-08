@@ -24,10 +24,12 @@ class Agent extends Model
     /**
      * L'agent appartient à un seul poste.
      */
-    public function postes(): BelongsTo
+    public function poste(): BelongsTo
     {
         return $this->belongsTo(Poste::class);
     }
+
+
 
     protected $fillable = [
     'matricule',
@@ -35,7 +37,7 @@ class Agent extends Model
     'prenom',
     'telephone',
     'email',
-    'image',
+    #'image',
     'service_id',
     'poste_id',
     'date_naissance',

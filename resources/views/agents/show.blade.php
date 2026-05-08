@@ -12,7 +12,7 @@
         {{-- PHOTO --}}
         <div class="text-center mb-3">
             @if($agent->photo)
-                <img src="{{ asset('storage/'.$agent->photo) }}"
+                <img src="{{ asset($agent->photo) }}"
                      class="rounded-circle"
                      width="120"
                      height="120">

@@ -20,7 +20,7 @@ class AgentController extends Controller
     public function index()
     {
         //
-        $agents= Agent::with(['service', 'postes'])
+        $agents= Agent::with(['service', 'poste'])
                         ->latest()
                         ->paginate(10);
         return view('agents.index', compact('agents'));
@@ -42,41 +42,28 @@ class AgentController extends Controller
      */
     public function store(StoreAgentRequest $request)
     {
-        /*
-         Ici, nous validons les données reçues du formulaire de création d'agent à l'aide de la classe StoreAgentRequest.
-         Ensuite, nous gérons le téléchargement de la photo de l'agent (si elle est
-        */
         $data = $request->validated();
+
         /*
         Gestion des photos
         */
-        // if($request->hasFile('photo')) {
-        //     $file = $request->file('photo');
-        //     $filename = time() . '_' . $file->getClientOriginalName();
-        //     $file->move(public_path('photos'), $filename);
-        //     $data['photo'] = 'photos/' . $filename;
-        // }
-        // if ($request->hasFile('image') && $request->file('image')->isValid()) {
-        //     $image = $request->file('image');
-        //     $name = time().'.'.$image->extension();
-        //     $image->move(public_path('uploads'), $name);
-        // }
-        
-
         if ($request->hasFile('image') && $request->file('image')->isValid()) {
+
             $image = $request->file('image');
-            $name = time().'.'.$image->extension();
-            $image->move(public_path('uploads'), $name);
+
+            $name = time().'_'.$image->getClientOriginalName();
+
+            $image->move(public_path('photos'), $name);
 
             $data['image'] = $name;
         }
-        $data = $request->all();
 
         Agent::create($data);
-            # enregistrement de l'instance dans la base de données
-            return redirect()->route('agents.index')
-                                ->with('success', 'Agent créé avec succès.');   
-        }
+
+        return redirect()
+                ->route('agents.index')
+                ->with('success', 'Agent créé avec succès.');
+    }
 
     /**
      * Display the specified resource.
@@ -106,22 +93,27 @@ class AgentController extends Controller
      */
     public function update(UpdateAgentRequest $request, Agent $agent)
     {
-        //
         $data = $request->validated();
+
         /*
         Gestion des photos
         */
-        if($request->hasFile('photo')) {
-            $file = $request->file('photo');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('photos'), $filename);
-            $data['photo'] = 'photos/' . $filename;
+        if ($request->hasFile('image') && $request->file('image')->isValid()) {
+
+            $image = $request->file('image');
+
+            $name = time().'_'.$image->getClientOriginalName();
+
+            $image->move(public_path('photos'), $name);
+
+            $data['image'] = $name;
         }
+
         $agent->update($data);
 
-        # enregistrement de l'instance dans la base de données
-        return redirect()->route('agents.index')
-                            ->with('success', 'Agent mis à jour avec succès.');
+        return redirect()
+                ->route('agents.index')
+                ->with('success', 'Agent mis à jour avec succès.');
     }
 
     /**

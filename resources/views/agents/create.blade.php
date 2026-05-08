@@ -65,29 +65,11 @@
         @enderror
     </div>
 
-    {{-- POSTE --}}
-    <div class="col-md-6 mb-3">
-        <label>Poste</label>
-        <select name="poste_id"
-                class="form-control @error('poste_id') is-invalid @enderror"
-                required>
-            <option value="">-- Choisir un poste --</option>
-            @foreach($postes as $poste)
-                <option value="{{ $poste->id }}"
-                    {{ old('poste_id') == $poste->id ? 'selected' : '' }}>
-                    {{ $poste->nom }}
-                </option>
-            @endforeach
-        </select>
-        @error('poste_id')
-        <div class="invalid-feedback">{{ $message }}</div>
-        @enderror
-    </div>
-
-    {{-- SERVICE --}}
+        {{-- SERVICE --}}
     <div class="col-md-6 mb-3">
         <label>Service</label>
         <select name="service_id"
+                id="service"
                 class="form-control @error('service_id') is-invalid @enderror"
                 required>
             <option value="">-- Choisir un service --</option>
@@ -100,6 +82,34 @@
         </select>
         @error('service_id')
         <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+    </div>
+
+    {{-- POSTE --}}
+    <div class="col-md-6 mb-3">
+        <label>Poste</label>
+
+        <select name="poste_id"
+                id="poste"
+                class="form-control @error('poste_id') is-invalid @enderror"
+                required>
+
+            <option value="">-- Choisir un poste --</option>
+
+            @foreach($postes as $poste)
+                <option value="{{ $poste->id }}"
+                        data-service="{{ $poste->service_id }}"
+                        {{ old('poste_id') == $poste->id ? 'selected' : '' }}>
+
+                    {{ $poste->nom }}
+
+                </option>
+            @endforeach
+
+        </select>
+
+        @error('poste_id')
+            <div class="invalid-feedback">{{ $message }}</div>
         @enderror
     </div>
 
@@ -158,3 +168,32 @@
 </form>
 
 @endsection
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const serviceSelect = document.getElementById('service');
+    const posteSelect = document.getElementById('poste');
+
+    serviceSelect.addEventListener('change', function () {
+
+        let serviceId = this.value;
+
+        Array.from(posteSelect.options).forEach(option => {
+
+            if(option.value === "") {
+                option.hidden = false;
+                return;
+            }
+
+            if(option.dataset.service === serviceId) {
+                option.hidden = false;
+            } else {
+                option.hidden = true;
+            }
+        });
+
+        posteSelect.value = "";
+    });
+});
+</script>
